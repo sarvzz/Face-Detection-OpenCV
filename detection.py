@@ -1,48 +1,45 @@
 import cv2 as cv
 import os
 
-# read the images from dir
+# Function to load images from a folder
 def load_images_from_folder(folder):
     images = []
     for filename in os.listdir(folder):
-        img = cv.imread(os.path.join(folder,filename))
+        filepath = os.path.join(folder, filename)
+        img = cv.imread(filepath)
         if img is not None:
-            images.append(img)
+            images.append((filename, img))
     return images
 
+# Load all images from the folder
+folder = 'Photos'
+images = load_images_from_folder(folder)
 
-img = load_images_from_folder('Photos')
+# Read the Haar cascade file
+haar_cascade = cv.CascadeClassifier('haar_face.xml')
 
-# read the input image
-# img = cv.imread('Photos/LilyRoseDepp.jpeg')
-# cv.imshow('Person', img)
+# Check if Haar cascade is loaded
+if haar_cascade.empty():
+    print("Error: Haar cascade file not found or invalid.")
+else:
+    for filename, img in images:
+        # Convert to grayscale
+        gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
-# convert to grayscale of each frame
-gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-cv.imshow('Gray Person', gray)
+        # Detect faces
+        faces = haar_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3)
 
-# # read the haarcascade 
-# haar_cascade = cv.CascadeClassifier('haar_face.xml')
+        print(f"-> {filename}: Number of faces found = {len(faces)}")
 
-# # detect the faces in an image, it returns the coordinates of detected faces in (x,yw,h) format
-# faces = haar_cascade.detectMultiScale(gray, scaleFactor=2, minNeighbors=3)
+        # Draw rectangles around detected faces and save cropped faces
+        for i, (x, y, w, h) in enumerate(faces):
+            cv.rectangle(img, (x, y), (x + w, y + h), (0, 255, 255), thickness=4)
+            face = img[y:y + h, x:x + w]
+            face_filename = f"{filename.split('.')[0]}_face{i}.jpeg"
+            cv.imwrite(face_filename, face)
+            print(f"Saved {face_filename}")
 
-# print(f'-> Number of faces found = {len(faces)}')
-
-# # loop over all detected faces
-# if len(faces)>0: 
-#     for i, (x,y,w,h) in enumerate(faces):
-
-#         # draw rectangle around the detected face:
-#         cv.rectangle(img, (x,y), (x+w,y+h), (0,255,255), thickness=4)
-#         face = img[y:y+h, x:x+w]
-#         cv.imshow('Cropped Face', face)
-#         cv.imwrite(f'faces{i}.jpeg',face)
-#         print(f'face{i}.jpeg is saved')
-
-# # display the image with detected faces
-# cv.imshow('Detected Faces', img)
-
-# press any key to close the images
-cv.waitKey(0)
-cv.destroyAllWindows()
+        # Display the processed image
+        cv.imshow(f'Detected Faces in {filename}', img)
+        cv.waitKey(0)
+        cv.destroyAllWindows()
