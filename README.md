@@ -3,9 +3,13 @@
 
 ## Overview
 
-This project demonstrates a Python-based solution for face detection and cropping using the OpenCV library. It processes multiple images, detects faces using Haar cascades, and saves the cropped face images for further use. 
+This project demonstrates a Python-based solution for face detection and cropping using the OpenCV library. 
+It processes multiple images, detects faces using Haar cascades, and saves the cropped face images for further use. 
 
-![Face Detection Image](haar_face_detect.jpg)
+<div align="center">
+  <img src="haar_face_detect.jpg" alt="Face Detection Image" width="300">
+</div>
+
 ---
 
 ## Features
